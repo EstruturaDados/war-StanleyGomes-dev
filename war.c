@@ -15,13 +15,22 @@
 // ============================================================================
 
 // Inclusão das bibliotecas padrão necessárias para entrada/saída, alocação de memória, manipulação de strings e tempo.
+#include <stdio.h>
+#include <string.h>
 
 // --- Constantes Globais ---
 // Definem valores fixos para o número de territórios, missões e tamanho máximo de strings, facilitando a manutenção.
+#define MAX_TERRITORIOS 5
+#define TAM_NOME 50
+#define TAM_COR 20
 
 // --- Estrutura de Dados ---
 // Define a estrutura para um território, contendo seu nome, a cor do exército que o domina e o número de tropas.
-
+typedef struct Territorio {
+    char nome[TAM_NOME];
+    char cor[TAM_COR];
+    int tropas;
+};
 // --- Protótipos das Funções ---
 // Declarações antecipadas de todas as funções que serão usadas no programa, organizadas por categoria.
 // Funções de setup e gerenciamento de memória:
@@ -32,12 +41,46 @@
 // --- Função Principal (main) ---
 // Função principal que orquestra o fluxo do jogo, chamando as outras funções em ordem.
 int main() {
+    struct Territorio war[MAX_TERRITORIOS];
+    int i = 0;
+
+    printf("Vamos cadastrar os %d territorios iniciais do nosso mundo.\n\n", MAX_TERRITORIOS);
+
+    do {
+        printf("--- Cadastrando Territorio %d ---\n", i + 1);
+
+        printf("Nome do Territorio: ");
+        fgets(war[i].nome, TAM_NOME, stdin);
+        war[i].nome[strcspn(war[i].nome, "\n")] = 0; // Remove \n do fgets
+
+        printf("Cor do Exército (ex: Azul, Verde): ");
+        fgets(war[i].cor, TAM_COR, stdin);
+        war[i].cor[strcspn(war[i].cor, "\n")] = 0;
+
+        printf("Número de Tropas: ");
+        scanf("%d", &war[i].tropas);
+        getchar(); // Limpa o \n que sobra no buffer do scanf
+
+        printf("\n");
+        i++;
+    } while (i < MAX_TERRITORIOS);
+
+    // Mostrando os territórios cadastrados
+    printf("Territorios cadastrados:\n");
+    for (i = 0; i < MAX_TERRITORIOS; i++) {
+        printf("%d - Nome: %s, Cor: %s, Tropas: %d\n", i + 1, war[i].nome, war[i].cor, war[i].tropas);
+    }
+
+    return 0;
+}
+
     // 1. Configuração Inicial (Setup):
     // - Define o locale para português.
     // - Inicializa a semente para geração de números aleatórios com base no tempo atual.
     // - Aloca a memória para o mapa do mundo e verifica se a alocação foi bem-sucedida.
     // - Preenche os territórios com seus dados iniciais (tropas, donos, etc.).
     // - Define a cor do jogador e sorteia sua missão secreta.
+
 
     // 2. Laço Principal do Jogo (Game Loop):
     // - Roda em um loop 'do-while' que continua até o jogador sair (opção 0) ou vencer.
@@ -51,8 +94,6 @@ int main() {
     // 3. Limpeza:
     // - Ao final do jogo, libera a memória alocada para o mapa para evitar vazamentos de memória.
 
-    return 0;
-}
 
 // --- Implementação das Funções ---
 
