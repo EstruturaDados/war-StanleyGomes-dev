@@ -17,16 +17,18 @@
 // Inclusão das bibliotecas padrão necessárias para entrada/saída, alocação de memória, manipulação de strings e tempo.
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
+#include <time.h>
 
 // --- Constantes Globais ---
 // Definem valores fixos para o número de territórios, missões e tamanho máximo de strings, facilitando a manutenção.
 #define MAX_TERRITORIOS 5
-#define TAM_NOME 50
-#define TAM_COR 20
+#define TAM_NOME 30
+#define TAM_COR 10
 
 // --- Estrutura de Dados ---
 // Define a estrutura para um território, contendo seu nome, a cor do exército que o domina e o número de tropas.
-typedef struct Territorio {
+struct Territorio {
     char nome[TAM_NOME];
     char cor[TAM_COR];
     int tropas;
@@ -37,14 +39,57 @@ typedef struct Territorio {
 // Funções de interface com o usuário:
 // Funções de lógica principal do jogo:
 // Função utilitária:
+void atacar(struct Territorio* atacante, struct Territorio* defensor) {
+    int dadoAtacante = (rand() % 6) + 1;
+    int dadoDefensor = (rand() % 6) + 1;
+
+    printf("\n--- RESULTADO DA BATALHA ---\n");
+    printf("O atacante %s rolou um dado e tirou: %d\n", atacante->nome, dadoAtacante);
+    printf("O defensor %s rolou um dado e tirou: %d\n", defensor->nome, dadoDefensor);
+
+    if (dadoAtacante > dadoDefensor) {
+        // atacante vence
+        int tropasTransferidas = atacante->tropas / 2;
+        defensor->tropas = tropasTransferidas;
+        atacante->tropas -= tropasTransferidas;
+
+        // transfere cor
+        strcpy(defensor->cor, atacante->cor);
+
+        printf("VITÓRIA DO ATAQUE! %s conquistou %s e transferiu %d tropas.\n",
+               atacante->nome, defensor->nome, tropasTransferidas);
+    } else {
+        // defensor vence
+        atacante->tropas--;
+        printf("DEFESA BEM-SUCEDIDA! %s perdeu 1 tropa.\n", atacante->nome);
+    }
+
+}
+void mostrarMapa(struct Territorio* mapa, int total) {
+    printf("\n========== MAPA DO MUNDO - ESTADO ATUAL ==========\n\n");
+    for (int i = 0; i < total; i++) {
+        printf("%d. %s (Exército %s, Tropas: %d)\n",
+               i + 1,
+               mapa[i].nome,
+               mapa[i].cor,
+               mapa[i].tropas);
+    }
+    printf("=================================================\n");
+}
 
 // --- Função Principal (main) ---
 // Função principal que orquestra o fluxo do jogo, chamando as outras funções em ordem.
 int main() {
-    struct Territorio war[MAX_TERRITORIOS];
-    int i = 0;
+    struct Territorio *war;
+     int i = 0;
 
-    printf("Vamos cadastrar os %d territorios iniciais do nosso mundo.\n\n", MAX_TERRITORIOS);
+    war = (struct Territorio *) calloc(MAX_TERRITORIOS, sizeof(struct Territorio));
+
+   
+
+    printf("=========================================================\n");
+    printf("         WAR ESTRUTURADO - CADASTRO INICIAL\n");
+    printf("=========================================================\n");
 
     do {
         printf("--- Cadastrando Territorio %d ---\n", i + 1);
@@ -53,7 +98,7 @@ int main() {
         fgets(war[i].nome, TAM_NOME, stdin);
         war[i].nome[strcspn(war[i].nome, "\n")] = 0; // Remove \n do fgets
 
-        printf("Cor do Exército (ex: Azul, Verde): ");
+        printf("Cor do Exército : ");
         fgets(war[i].cor, TAM_COR, stdin);
         war[i].cor[strcspn(war[i].cor, "\n")] = 0;
 
@@ -65,12 +110,39 @@ int main() {
         i++;
     } while (i < MAX_TERRITORIOS);
 
+    int atacante, defensor;
+    
+    printf("=========================================================\n");
+    printf("         MAPA DO MUNDO - ESTADO ATUAL\n");
+    printf("=========================================================\n");
     // Mostrando os territórios cadastrados
     printf("Territorios cadastrados:\n");
     for (i = 0; i < MAX_TERRITORIOS; i++) {
-        printf("%d - Nome: %s, Cor: %s, Tropas: %d\n", i + 1, war[i].nome, war[i].cor, war[i].tropas);
+        printf("%d. %s (Exercito: %s, Tropas: %d)\n", i + 1, war[i].nome, war[i].cor, war[i].tropas);
     }
 
+    printf("\n--- FASE DE ATAQUE ---\n");
+    printf("Escolha o territorio atacante (1 a %d, ou 0 para sair): ", MAX_TERRITORIOS);
+    scanf("%d", &atacante);
+
+    if (atacante == 0) {
+        printf("Saindo...\n");
+        return 0;
+    }
+
+    printf("Escolha o territorio defensor (1 a %d): ", MAX_TERRITORIOS);
+    scanf("%d", &defensor);
+
+    atacar(&war[atacante - 1], &war[defensor - 1]);
+
+    mostrarMapa(war, MAX_TERRITORIOS);
+    free(war);
+    printf("\nMemória liberada com sucesso!\n");
+
+
+
+
+   
     return 0;
 }
 
